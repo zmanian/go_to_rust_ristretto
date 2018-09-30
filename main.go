@@ -1,4 +1,4 @@
-package main
+package bullets
 
 /*
 #cgo darwin LDFLAGS: -L./lib -lhello_ristretto
