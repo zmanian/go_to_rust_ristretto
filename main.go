@@ -1,4 +1,4 @@
-package main
+package go_to_rust_ristretto
 
 /*
 #cgo darwin LDFLAGS: -L./lib -lhello_ristretto
@@ -6,19 +6,6 @@ package main
 */
 import "C"
 
-import (
-	"fmt"
-	"unsafe"
-)
-
 func main() {
-	generateRistrettoPoint()
-}
-
-func generateRistrettoPoint() {
-	buf := make([]byte, 32, 32)
-	ptr := (*C.char)(unsafe.Pointer(&buf[0]))
-	len := C.size_t(len(buf))
-	C.generate(ptr, len)
-	fmt.Printf("%v", buf)
+	GenerateRistrettoPoint()
 }
