@@ -87,7 +87,7 @@ pub extern "C" fn generate_ristretto_range_proof(
     // 2. Serialize
     let proof_bytes = bincode::serialize(&proof).unwrap();
 
-    proof_buffer.copy_from_slice(proof_bytes.as_slice());
+    proof_buffer[..proof_bytes.len()].copy_from_slice(proof_bytes.as_slice());
 
     let pg = &generators.pedersen_gens;
 
