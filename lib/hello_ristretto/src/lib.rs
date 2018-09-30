@@ -28,6 +28,7 @@ pub extern "C" fn generate_ristretto_random(buf: *mut uint8_t, len: size_t) {
     buffer.copy_from_slice(&point_bytes);
 }
 
+#[no_mangle]
 pub extern "C" fn generate_ristretto_range_proof(
     vals:*const uint64_t,
     vals_len: size_t,
@@ -102,6 +103,7 @@ pub extern "C" fn generate_ristretto_range_proof(
 
 }
 
+#[no_mangle]
 pub extern "C" fn verify_ristretto_range_proof(
     proof_buf: *const uint8_t,
     proof_buf_len: size_t,
