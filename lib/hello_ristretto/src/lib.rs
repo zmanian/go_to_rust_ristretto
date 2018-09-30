@@ -29,51 +29,45 @@ pub extern "C" fn generate_ristretto_random(buf: *mut uint8_t, len: size_t) {
 }
 
 pub extern "C" fn generate_ristretto_range_proof(
-    value_0: uint64_t,
-    value_1: uint64_t,
-    blind_0_buf: *const uint8_t,
-    blind_0_buf_len: size_t,
-    blind_1_buf: *const uint8_t,
-    blind_1_buf_len: size_t,
+    vals:*const uint64_t,
+    vals_len: size_t,
+    blinding_factors: *const uint8_t,
+    blinding_factors_len: size_t,
     proof_buf: *mut uint8_t,
     proof_buf_len: size_t,
-    value_comm_0_buf:*mut uint8_t,
-    value_comm_0_buf_len:*mut uint8_t,
-    value_comm_1_buf:*mut uint8_t,
-    value_comm_1_buf_len:*mut uint8_t,
+    commitments: *mut uint8_t,
+    commitments_len: size_t
 ) {
+    let values = unsafe {
+        assert!(!proof_buf.is_null());
+        slice::from_raw_parts(vals, vals_len as usize)
+    };
+
+    let mut blindings: Vec<Scalar> = vec![];
+    for i in 0..blinding_factors_len{
+            let blind_p = unsafe{
+                blinding_factors.offset((i * 32) as isize)
+            };
+            let blind_buffer = c_buf_to_32_bytes_array(blind_p, 32);
+            blindings.push(Scalar::from_canonical_bytes(blind_buffer).unwrap());
+    }
+
+
 
 
     // Both prover and verifier have access to the generators and the proof
     let generators = Generators::new(PedersenGenerators::default(), 2, 2);
-
-    let values: Vec<u64> = vec![value_0 as u64, value_1 as u64];
-
-    let blind_0_buffer = c_buf_to_32_bytes_array(blind_0_buf,blind_0_buf_len);
-    let blind_1_buffer = c_buf_to_32_bytes_array(blind_1_buf,blind_1_buf_len);
+    
 
     let proof_buffer = unsafe {
         assert!(!proof_buf.is_null());
         slice::from_raw_parts_mut(proof_buf, proof_buf_len as usize)
     };
 
-
-    let value_comm_0_buffer = unsafe {
-        assert!(!value_comm_0_buf.is_null());
-        slice::from_raw_parts_mut(value_comm_0_buf, value_comm_0_buf_len as usize)
-    };
-
-  let value_comm_1_buffer = unsafe {
-        assert!(!value_comm_1_buf.is_null());
-        slice::from_raw_parts_mut(value_comm_1_buf, value_comm_1_buf_len as usize)
-    };
-
-
     let mut rng = OsRng::new().unwrap();
     let mut transcript = Transcript::new(b"AggregatedRangeProofTest");
 
     let (min, max) = (0u64, ((1u128 << 2) - 1) as u64);
-    let blindings: Vec<Scalar> = vec![Scalar::from_canonical_bytes(blind_0_buffer).unwrap(),Scalar::from_canonical_bytes(blind_1_buffer).unwrap()];
 
     let proof = RangeProof::prove_multiple(
         &generators,
@@ -98,17 +92,21 @@ pub extern "C" fn generate_ristretto_range_proof(
         .map(|(&v, &v_blinding)| pg.commit(Scalar::from(v), v_blinding))
         .collect();
 
-    value_comm_0_buffer.copy_from_slice(&value_commitments[0].compress().to_bytes());
-    value_comm_1_buffer.copy_from_slice(&value_commitments[1].compress().to_bytes());
+    for i in 0..commitments_len{
+        let mut buffer = unsafe {
+        let mut commmitment_p = commitments.offset((i *32) as isize);
+        slice::from_raw_parts_mut(commmitment_p, 32)
+        };
+        buffer.copy_from_slice(&value_commitments[i].compress().to_bytes());
+    }
+
 }
 
 pub extern "C" fn verify_ristretto_range_proof(
-    proof_buf: *mut uint8_t,
+    proof_buf: *const uint8_t,
     proof_buf_len: size_t,
-    value_comm_0_buf:*mut uint8_t,
-    value_comm_0_buf_len:size_t,
-    value_comm_1_buf:*mut uint8_t,
-    value_comm_1_buf_len:size_t,    
+    commitments:*const uint8_t,
+    commitments_len:size_t,
 )-> bool{
 
 
@@ -119,13 +117,17 @@ pub extern "C" fn verify_ristretto_range_proof(
         slice::from_raw_parts(proof_buf, proof_buf_len as usize)
     };
 
-    let value_comm_0 = CompressedRistretto(c_buf_to_32_bytes_array(value_comm_0_buf,value_comm_0_buf_len));
+    let mut value_commitments:Vec<RistrettoPoint> = vec![];
 
-    let value_comm_1 = CompressedRistretto(c_buf_to_32_bytes_array(value_comm_1_buf,value_comm_1_buf_len));
+    for i in 0..commitments_len{
+        let commit_p = unsafe{
+            commitments.offset((i * 32) as isize)
+        };
+        let point = CompressedRistretto(c_buf_to_32_bytes_array(commit_p,32));
+        value_commitments.push(point.decompress().unwrap());
+    } 
 
     let proof: RangeProof = bincode::deserialize(proof_buffer).unwrap();
-
-    let value_commitments = vec![value_comm_0.decompress().unwrap(), value_comm_1.decompress().unwrap()];
 
     // 4. Verify with the same customization label as above
     let mut rng = OsRng::new().unwrap();
