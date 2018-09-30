@@ -19,7 +19,7 @@ func GenerateRistrettoPoint() {
 	fmt.Printf("%v", buf)
 }
 
-func GenerateBulletProofs(values []int64, randomness [][32]byte) {
+func GenerateBulletProofs(values []int64, randomness [][]byte) {
 
 	valuesLen := C.size_t(len(values))
 	valuePtr := (*C.ulonglong)(unsafe.Pointer(&values[0]))
