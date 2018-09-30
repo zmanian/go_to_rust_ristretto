@@ -39,13 +39,13 @@ pub extern "C" fn generate_ristretto_range_proof(
     commitments: *mut uint8_t,
     commitments_len: size_t
 ) {
-    println!("Unpack values")
+    println!("Unpack values");
     let values = unsafe {
         assert!(!proof_buf.is_null());
         slice::from_raw_parts(vals, vals_len as usize)
     };
 
-    println!("Unpack blindings")
+    println!("Unpack blindings");
     let mut blindings: Vec<Scalar> = vec![];
     for i in 0..blinding_factors_len{
             let blind_p = unsafe{
@@ -72,7 +72,7 @@ pub extern "C" fn generate_ristretto_range_proof(
 
     let (min, max) = (0u64, ((1u128 << 2) - 1) as u64);
 
-    println!("Generate Proof")
+    println!("Generate Proof");
 
     let proof = RangeProof::prove_multiple(
         &generators,
@@ -80,9 +80,10 @@ pub extern "C" fn generate_ristretto_range_proof(
         &mut rng,
         &values,
         &blindings,
-        vals_len,
+        64,
     ).unwrap();
 
+    println!("Serialize proof");
     // 2. Serialize
     let proof_bytes = bincode::serialize(&proof).unwrap();
 

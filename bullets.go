@@ -1,4 +1,4 @@
-package bullets
+package go_to_rust_ristretto
 
 /*
 #cgo darwin LDFLAGS: -L./lib -lhello_ristretto
@@ -19,7 +19,7 @@ func GenerateRistrettoPoint() {
 	fmt.Printf("%v", buf)
 }
 
-func GenerateBulletProofs(values []int64, randomness [][]byte) {
+func GenerateBulletProofs(values []int64, randomness [][]byte) ([]byte, [][32]byte) {
 
 	valuesLen := C.size_t(len(values))
 	valuePtr := (*C.ulonglong)(unsafe.Pointer(&values[0]))
@@ -43,5 +43,6 @@ func GenerateBulletProofs(values []int64, randomness [][]byte) {
 		valueCommitPtr,
 		valuesLen,
 	)
+	return proofBuf, valueCommitmentsBuf
 
 }

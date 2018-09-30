@@ -1,4 +1,4 @@
-package bullets
+package go_to_rust_ristretto
 
 /*
 #cgo darwin LDFLAGS: -L./lib -lhello_ristretto
