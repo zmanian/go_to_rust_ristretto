@@ -57,7 +57,7 @@ pub extern "C" fn generate_ristretto_range_proof(
 
 
     // Both prover and verifier have access to the generators and the proof
-    let generators = Generators::new(PedersenGenerators::default(), 2, 2);
+    let generators = Generators::new(PedersenGenerators::default(), 64, vals_len);
     
 
     let proof_buffer = unsafe {
