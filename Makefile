@@ -3,8 +3,8 @@ ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 all: library build
 
 clean:
-	rm -rf ./lib/hello/target
-	rm -f ./lib/hello/Cargo.lock ./lib/libhello_ristretto.dylib go-rust-ristretto
+	rm -rf ./lib/hello_ristretto/target
+	rm -f ./lib/hello_ristretto/Cargo.lock ./lib/libhello_ristretto.dylib go-rust-ristretto
 
 library:
 	$(MAKE) -C lib/hello_ristretto build
