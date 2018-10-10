@@ -4,13 +4,13 @@ all: library build
 
 clean:
 	rm -rf ./lib/hello_ristretto/target
-	rm -f ./lib/hello_ristretto/Cargo.lock ./lib/libhello_ristretto.dylib go-rust-ristretto
+	rm -f ./lib/hello_ristretto/Cargo.lock ./lib/libhello_ristretto.so go-rust-ristretto
 
 library:
 	$(MAKE) -C lib/hello_ristretto build
 
 build:
-	cp lib/hello_ristretto/target/release/libhello_ristretto.dylib ./lib
+	cp lib/hello_ristretto/target/release/libhello_ristretto.so ./lib/
 	go build -ldflags="-r $(ROOT_DIR)lib" -o go-rust-ristretto
 
 
