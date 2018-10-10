@@ -1,4 +1,4 @@
-package go_to_rust_ristretto
+package main
 
 func main() {
 	GenerateRistrettoPoint()
