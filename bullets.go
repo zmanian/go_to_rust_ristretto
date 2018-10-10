@@ -22,7 +22,7 @@ func GenerateRistrettoPoint() {
 func GenerateBulletProofs(values []int64, randomness [][]byte) ([]byte, [][32]byte) {
 
 	valuesLen := C.size_t(len(values))
-	valuePtr := (*C.ulonglong)(unsafe.Pointer(&values[0]))
+	valuePtr := (*C.ulong)(unsafe.Pointer(&values[0]))
 
 	blindingPtr := (*C.uchar)(unsafe.Pointer(&randomness[0]))
 	blindingLen := C.size_t(len(randomness))
